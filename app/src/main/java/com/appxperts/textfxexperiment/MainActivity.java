@@ -3,6 +3,7 @@ package com.appxperts.textfxexperiment;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -40,30 +41,6 @@ public class MainActivity extends ActionBarActivity {
         Toast.makeText(getApplicationContext(), "Chosing file !", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == FILE_CHOOSE_RESULT_CODE) {
-            if (resultCode == RESULT_OK) {
-
-                // String video_path = "file:///storage/sdcard0/bird_1.mp4";
-
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-
-                shareIntent.setType("video/mp4");
-                //shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(video_path));
-                shareIntent.putExtra(Intent.EXTRA_STREAM, data.getData());
-                //  shareIntent.setClassName("com.android.mms", "com.android.mms.ui.ComposeMessageActivity");
-
-                if (isPackageExisted("com.android.mms")) {
-                    shareIntent.setClassName("com.android.mms", "com.android.mms.ui.ComposeMessageActivity");
-                }
-
-                startActivityForResult(Intent.createChooser(shareIntent, "Share Your Video"), SHARE_INTENT);
-            }
-        }
-
-    }
 
     public boolean isPackageExisted(String targetPackage) {
 
@@ -80,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void downloadFile(View v) {
 
-        String url = "http://www.normandiebulle.com/wp-content/uploads/2014/07/tintin.jpg";
+        String url = "http://projectsonseoxperts.net.au/textfx/audio/catmeow.mp4";
 
         InputStreamVolleyRequest request = new InputStreamVolleyRequest(Request.Method.GET, url, new Response.Listener<byte[]>() {
             @Override
@@ -89,11 +66,16 @@ public class MainActivity extends ActionBarActivity {
                 OutputStream f = null;
                 try {
                     String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-                    f = new FileOutputStream(baseDir + File.separator + "guffyTinTin.jpg");
+                    f = new FileOutputStream(baseDir + File.separator + "sound.mp4");
                     f.write(response); //your bytes
                     f.flush();
                     f.close();
-                    Log.d("GUFRAN", "Got Response  " + response.length);
+                    Log.d("GUFRAN", "File Downloded   " + response.length);
+
+                    Log.d("GUFRAN", "Sharing File  .. ");
+
+                    shareVideo();
+
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -113,6 +95,26 @@ public class MainActivity extends ActionBarActivity {
 
         TextFXExperimentApplication.getInstance().addToRequestQueue(request);
 
+
+    }
+
+    private void shareVideo() {
+
+        String video_path = "file:///storage/sdcard0/sound.mp4";
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        shareIntent.setType("video/mp4");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(video_path));
+        // shareIntent.putExtra(Intent.EXTRA_STREAM, data.getData());
+        //  shareIntent.setClassName("com.android.mms", "com.android.mms.ui.ComposeMessageActivity");
+
+        if (isPackageExisted("com.android.mms")) {
+            shareIntent.setClassName("com.android.mms", "com.android.mms.ui.ComposeMessageActivity");
+        }
+
+        Log.d("GUFRAN", "Launching Share intent  .. ");
+        startActivityForResult(Intent.createChooser(shareIntent, "Share Your Video"), SHARE_INTENT);
 
     }
 
